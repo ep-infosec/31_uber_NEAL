@@ -1,0 +1,25 @@
+SELF_DIR = $(dir $(lastword $(MAKEFILE_LIST)))
+SUBDIRS_ = $(wildcard */Makefile)
+SUBDIRS = $(filter-out docs/Makefile,$(SUBDIRS_))
+
+include $(SELF_DIR)/Makefile.consts
+
+.PHONY: build
+build: $(patsubst %/Makefile,%.build,$(SUBDIRS))
+
+.PHONY: clean
+clean: $(patsubst %/Makefile,%.clean,$(SUBDIRS))
+
+.PHONY: test
+test: $(NEAL) $(patsubst %/Makefile,%.test,$(SUBDIRS))
+	@true
+
+%.build:
+	[ "$*" != "providers" ] || sleep 1
+	@$(MAKE) -C $* build
+
+%.clean:
+	@$(MAKE) -C $* clean
+
+%.test:
+	@$(MAKE) -C $* test

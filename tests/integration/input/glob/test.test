@@ -1,0 +1,5 @@
+// RUN: %not %neal %p | %check
+
+// CHECK-NEXT: error: Must use visibility = PRIVATE instead.
+// CHECK-NEXT: error: Call bar instead
+// CHECK-NOT: .*

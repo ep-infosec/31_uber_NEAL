@@ -1,0 +1,39 @@
+ifndef CONSTS_INCLUDED
+CONSTS_INCLUDED = 1
+
+SELF_DIR = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+.DEFAULT_GOAL := build
+
+ifneq ($(COVERAGE),)
+	COVERAGE := BISECT_COVERAGE=YES
+	COV_SUFFIX := .cov
+endif
+
+TYPE ?= exe
+NATIVE ?= 0
+
+ifeq ($(NATIVE), 0)
+	EXEC_EXT = byte
+	LIB_EXT = cmo
+else
+	EXEC_EXT = native
+	LIB_EXT = cmxs
+endif
+
+NEAL := $(SELF_DIR)/core/main$(COV_SUFFIX).$(EXEC_EXT)
+
+ifdef RELATIVE_LIB_PATH
+	_LIB_PATH := -cflags -ppopt,-DRELATIVE_LIB_PATH="\"$(RELATIVE_LIB_PATH)\""
+else
+ifdef LIB_PATH
+	_LIB_PATH := -cflags -ppopt,-DLIB_PATH="\"$(LIB_PATH)\""
+endif
+endif
+
+OCAMLBUILD := ocamlbuild $(_LIB_PATH) -use-ocamlfind -plugin-tag 'package(bisect_ppx-ocamlbuild)'
+OCAMLENV := $(COVERAGE)
+
+$(NEAL):
+	@make -C $(SELF_DIR) build
+
+endif
